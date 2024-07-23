@@ -6,9 +6,7 @@ import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { AuthGuard } from './guard/auth.access.guard';
 import { AuthRefreshGuard } from './guard/auth.refresh.guard';
-import { Request as ExpressReq } from 'express';
 import { PayloadDto } from './dto/payloadDto';
-import { extractTokenFromHeader } from './utils/utils';
 
 @Controller('auth')
 export class AuthController {
@@ -16,6 +14,7 @@ export class AuthController {
   constructor(private userService : UserService, private authService: AuthService) {}
 
   @Post('signup')
+  @SuccessMessage('User created successfully')
   async signup(@Body() createUserDto: CreateUserDto) {
     return await this.authService.signup(createUserDto)
   }

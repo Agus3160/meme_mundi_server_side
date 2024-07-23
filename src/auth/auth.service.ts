@@ -6,7 +6,6 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { PayloadDto } from './dto/payloadDto';
-import { extractTokenFromHeader } from './utils/utils';
 import { Request } from 'express';
 
 @Injectable()
@@ -16,6 +15,12 @@ export class AuthService {
     private jwtService: JwtService,
     private env: ConfigService,
   ) {}
+
+  
+  extractTokenFromHeader(request: Request, typeAuth: string): string | undefined {
+    const [type, token] = request.headers.authorization?.split(' ') ?? [];
+    return type === typeAuth ? token : undefined;
+  }
 
   async signup(createUserDto: CreateUserDto) {
     try {
@@ -62,6 +67,8 @@ export class AuthService {
     return {
       accessToken: accessToken,
       refreshToken: refreshToken,
+      username: user.username,
+      userId: user.id,
       expiresIn: new Date().setTime(
         new Date().getTime() + this.env.get('accessTokenExpiresIn'),
       ),
@@ -108,15 +115,19 @@ export class AuthService {
       );
 
       return {
+        username: user.username,
+        userId: user.id,
         accessToken: newAccessToken,
         refreshToken: newRefreshToken,
         expiresIn: new Date().setTime(
           new Date().getTime() + accessTokenExpiersIn,
-        ),
-      };
+        )
+      }
     }
 
     return {
+      username: user.username,
+      userId: user.id,
       accessToken: newAccessToken,
       expiresIn: new Date().setTime(
         new Date().getTime() + accessTokenExpiersIn,
